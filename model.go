@@ -1,9 +1,9 @@
-package twitter
+package tweetgo
 
 // OAuthRequestTokenInput contains the possible inputs to the request token endpoint.
 type OAuthRequestTokenInput struct {
-	OAuthCallback   string `schema:"oauth_callback,required"`
-	XAuthAccessType string `schema:"x_auth_access_type"`
+	OAuthCallback   *string `schema:"oauth_callback"`
+	XAuthAccessType *string `schema:"x_auth_access_type"`
 }
 
 // OAuthRequestTokenOutput contains the results of calling request token.
@@ -15,8 +15,8 @@ type OAuthRequestTokenOutput struct {
 
 // OAuthAccessTokenInput contains the input necessary to exchange a request token for an access token
 type OAuthAccessTokenInput struct {
-	OAuthToken    string `schema:"oauth_token"`
-	OAuthVerifier string `schema:"oauth_verifier"`
+	OAuthToken    *string `schema:"oauth_token"`
+	OAuthVerifier *string `schema:"oauth_verifier"`
 }
 
 // OAuthAccessTokenOutput contains the results of calling OAuth Access Token, including a long lived token
@@ -29,21 +29,21 @@ type OAuthAccessTokenOutput struct {
 
 // StatusesUpdateInput contains the possible inputs when updating a status
 type StatusesUpdateInput struct {
-	Status                    string  `schema:"status,required"`
-	InReplyToStatusID         int64   `schema:"in_reply_to_status_id"`
-	AutoPopulateReplyMetadata bool    `schema:"auto_populate_reply_metadata"`
-	ExcludeReplyUserIDs       string  `schema:"exclude_reply_user_ids"`
-	AttachmentURL             string  `schema:"attachment_url"`
-	MediaIDs                  string  `schema:"media_ids"`
-	PossiblySensitive         bool    `schema:"possibly_sensitive"`
-	Lat                       float64 `schema:"lat"`
-	Long                      float64 `schema:"long"`
-	PlaceID                   string  `schema:"place_id"`
-	DisplayCoordinates        bool    `schema:"display_coordinates"`
-	TrimUser                  bool    `schema:"trim_user"`
-	EnableDMCommands          bool    `schema:"enable_dmcommands"`
-	FailDMCommands            bool    `schema:"fail_dmcommands"`
-	CardURI                   string  `schema:"card_uri"`
+	Status                    *string  `schema:"status"`
+	InReplyToStatusID         *int64   `schema:"in_reply_to_status_id"`
+	AutoPopulateReplyMetadata *bool    `schema:"auto_populate_reply_metadata"`
+	ExcludeReplyUserIDs       *string  `schema:"exclude_reply_user_ids"`
+	AttachmentURL             *string  `schema:"attachment_url"`
+	MediaIDs                  *string  `schema:"media_ids"`
+	PossiblySensitive         *bool    `schema:"possibly_sensitive"`
+	Lat                       *float64 `schema:"lat"`
+	Long                      *float64 `schema:"long"`
+	PlaceID                   *string  `schema:"place_id"`
+	DisplayCoordinates        *bool    `schema:"display_coordinates"`
+	TrimUser                  *bool    `schema:"trim_user"`
+	EnableDMCommands          *bool    `schema:"enable_dmcommands"`
+	FailDMCommands            *bool    `schema:"fail_dmcommands"`
+	CardURI                   *string  `schema:"card_uri"`
 }
 
 // StatusesUpdateOutput contains the output from posting a status update
@@ -64,11 +64,11 @@ type StatusesUpdateOutput struct {
 
 // StatusesFilterInput contains the input options for getting filtered statuses
 type StatusesFilterInput struct {
-	Follow        string `schema:"follow"`
-	Track         string `schema:"track"`
-	Locations     string `schema:"locations"`
-	Delimited     string `schema:"delimited"`
-	StallWarnings string `schema:"stall_warnings"`
+	Follow        *string `schema:"follow"`
+	Track         *string `schema:"track"`
+	Locations     *string `schema:"locations"`
+	Delimited     *string `schema:"delimited"`
+	StallWarnings *string `schema:"stall_warnings"`
 }
 
 // StatusesFilterOutput contains the output for a single response from the filtered statuses endpoint
@@ -78,6 +78,27 @@ type StatusesFilterOutput struct {
 	RetweetedStatus tweet `json:"retweeted_status"`
 	ExtendedTweet   tweet `json:"extended_tweet"`
 }
+
+// StatusesUserTimelineInput contains the input options for getting the users timeline statuses
+type StatusesUserTimelineInput struct {
+	UserID         *int64  `schema:"user_id"`
+	ScreenName     *string `schema:"screen_name"`
+	SinceID        *int64  `schema:"since_id"`
+	Count          *int    `schema:"count"`
+	MaxID          *int64  `schema:"max_id"`
+	TrimUser       *bool   `schema:"trim_user"`
+	ExcludeReplies *bool   `schema:"exclude_replies"`
+	IncludeRts     *bool   `schema:"include_rts"`
+}
+
+// StatusesUserTimelineOutput contains the output for a response from the users timeline endpoint
+type StatusesUserTimelineOutput struct {
+	tweet
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+// STRUCTS FOR COMPOSITION
+// ---------------------------------------------------------------------------------------------------------------------
 
 // https://developer.twitter.com/en/docs/tweets/data-dictionary/overview/tweet-object
 type tweet struct {

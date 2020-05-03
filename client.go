@@ -1,9 +1,11 @@
-package twitter
+package tweetgo
 
 import (
 	"encoding/json"
 	"io/ioutil"
+	"math/rand"
 	"net/http"
+	"time"
 
 	"github.com/gorilla/schema"
 )
@@ -14,7 +16,43 @@ type Client struct {
 	OAuthConsumerSecret    string
 	OAuthAccessToken       string
 	OAuthAccessTokenSecret string
-	HTTPClient             http.Client
+	HTTPClient             requestMaker
+	Noncer                 nonceMaker
+	Timer                  currentTimer
+}
+
+type noncer struct{}
+
+func (n noncer) Generate() string {
+	const allowed = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
+	b := make([]byte, 48)
+	for i := range b {
+		b[i] = allowed[rand.Intn(len(allowed))]
+	}
+
+	return string(b)
+}
+
+type timer struct{}
+
+func (t timer) GetCurrentTime() int64 {
+	return time.Now().Unix()
+}
+
+func NewClient(oauthConsumerKey, oauthConsumerSecret string) Client {
+	return Client{
+		OAuthConsumerKey:    oauthConsumerKey,
+		OAuthConsumerSecret: oauthConsumerSecret,
+		HTTPClient:          &http.Client{},
+		Noncer:              noncer{},
+		Timer:               timer{},
+	}
+}
+
+func (c *Client) SetAccessKeys(oauthAccessToken, oauthAccessTokenSecret string) {
+	c.OAuthAccessToken = oauthAccessToken
+	c.OAuthAccessTokenSecret = oauthAccessTokenSecret
 }
 
 // OAuthRequestTokenGet will return an oauth_token and oauth_token_secret
@@ -96,4 +134,25 @@ func (c Client) StatusesFilterPostRaw(input StatusesFilterInput) (*http.Response
 	}
 
 	return res, nil
+}
+
+func (c Client) StatusesUserTimelineGet(input StatusesUserTimelineInput) ([]StatusesUserTimelineOutput, error) {
+	uri := "https://api.twitter.com/1.1/statuses/user_timeline.json"
+	params := processParams(input)
+
+	res, err := c.executeRequest(http.MethodGet, uri, params)
+	if err != nil {
+		return []StatusesUserTimelineOutput{}, err
+	}
+	defer res.Body.Close()
+
+	resBytes, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return []StatusesUserTimelineOutput{}, err
+	}
+
+	var output []StatusesUserTimelineOutput
+	json.Unmarshal(resBytes, &output)
+
+	return output, nil
 }

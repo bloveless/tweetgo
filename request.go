@@ -1,4 +1,4 @@
-package twitter
+package tweetgo
 
 import (
 	"crypto/hmac"
@@ -7,25 +7,60 @@ import (
 	"errors"
 	"io"
 	"io/ioutil"
-	"math/rand"
 	"net/http"
 	"net/url"
+	"reflect"
 	"strconv"
 	"strings"
-	"time"
-
-	"github.com/gorilla/schema"
 )
 
+type requestMaker interface {
+	Do(req *http.Request) (*http.Response, error)
+}
+
+type nonceMaker interface {
+	Generate() string
+}
+
+type currentTimer interface {
+	GetCurrentTime() int64
+}
+
 func processParams(input interface{}) url.Values {
-	encoder := schema.NewEncoder()
+	v := reflect.ValueOf(input)
 
 	params := url.Values{}
-	encoder.Encode(input, params)
+	for i := 0; i < v.NumField(); i++ {
+		name := v.Type().Field(i).Tag.Get("schema")
+		field := v.Field(i)
 
-	for k := range params {
-		if len(params.Get(k)) == 0 {
-			params.Del(k)
+		// Convert to non-pointer version
+		if field.Kind() == reflect.Ptr {
+			field = field.Elem()
+		}
+
+		// skip unset/invalid fields
+		if !field.IsValid() {
+			continue
+		}
+
+		// get the actual value
+		value := field.Interface()
+
+		if value != nil {
+			// convert to string based on underlying type
+			switch value.(type) {
+			case string:
+				params.Add(name, value.(string))
+			case bool:
+				params.Add(name, strconv.FormatBool(value.(bool)))
+			case int:
+				params.Add(name, strconv.FormatInt(int64(value.(int)), 10))
+			case int64:
+				params.Add(name, strconv.FormatInt(value.(int64), 10))
+			case float64:
+				params.Add(name, strconv.FormatFloat(value.(float64), 'f', -1, 64))
+			}
 		}
 	}
 
@@ -41,6 +76,11 @@ func (c Client) executeRequest(method, uri string, params url.Values) (*http.Res
 	res, err := c.HTTPClient.Do(req)
 	if err != nil {
 		return nil, err
+	}
+
+	if res.StatusCode != 200 {
+		b, _ := ioutil.ReadAll(res.Body)
+		return nil, errors.New("Status: " + res.Status + " - Body: " + string(b))
 	}
 
 	if res.StatusCode != http.StatusOK {
@@ -66,8 +106,8 @@ func bodyToValues(body io.ReadCloser) (url.Values, error) {
 }
 
 func (c Client) getSignedRequest(method, uri string, params url.Values) (*http.Request, error) {
-	nonce := generateNonce()
-	timestamp := strconv.FormatInt(time.Now().Unix(), 10)
+	nonce := c.Noncer.Generate()
+	timestamp := strconv.FormatInt(c.Timer.GetCurrentTime(), 10)
 
 	sr := signatureRequest{
 		method:    method,
@@ -77,7 +117,10 @@ func (c Client) getSignedRequest(method, uri string, params url.Values) (*http.R
 		params:    params,
 	}
 
-	oauthSignature := c.signature(sr)
+	oauthSignature, err := c.signature(sr)
+	if err != nil {
+		return nil, err
+	}
 
 	hp := headerParameters{
 		oauthNonce:     nonce,
@@ -88,6 +131,18 @@ func (c Client) getSignedRequest(method, uri string, params url.Values) (*http.R
 	authHeader := c.getOauthAuthorizationHeader(hp)
 
 	req, err := http.NewRequest(sr.method, sr.uri, strings.NewReader(sr.params.Encode()))
+
+	if method == http.MethodGet {
+		u, err := url.Parse(sr.uri)
+		if err != nil {
+			return nil, err
+		}
+
+		u.RawQuery = sr.params.Encode()
+
+		req, err = http.NewRequest(sr.method, u.String(), nil)
+	}
+
 	if err != nil {
 		return nil, err
 	}
@@ -98,15 +153,6 @@ func (c Client) getSignedRequest(method, uri string, params url.Values) (*http.R
 	return req, nil
 }
 
-func generateNonce() string {
-	const allowed = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-	b := make([]byte, 48)
-	for i := range b {
-		b[i] = allowed[rand.Intn(len(allowed))]
-	}
-	return string(b)
-}
-
 type signatureRequest struct {
 	method    string
 	uri       string
@@ -115,8 +161,14 @@ type signatureRequest struct {
 	params    url.Values
 }
 
-func (c Client) signature(sr signatureRequest) string {
-	values := url.Values{}
+func (c Client) signature(sr signatureRequest) (string, error) {
+	uri, err := url.Parse(sr.uri)
+	if err != nil {
+		return "", err
+	}
+
+	values := uri.Query()
+
 	values.Add("oauth_consumer_key", c.OAuthConsumerKey)
 	values.Add("oauth_nonce", sr.nonce)
 	values.Add("oauth_signature_method", "HMAC-SHA1")
@@ -139,7 +191,7 @@ func (c Client) signature(sr signatureRequest) string {
 
 	signingKey := url.QueryEscape(c.OAuthConsumerSecret) + "&" + url.QueryEscape(c.OAuthAccessTokenSecret)
 
-	return calculateSignature(signatureBaseString, signingKey)
+	return calculateSignature(signatureBaseString, signingKey), nil
 }
 
 func calculateSignature(base, key string) string {
