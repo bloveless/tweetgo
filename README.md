@@ -1,27 +1,35 @@
 # Tweetgo
 
-This library is not meant to be an exhaustive API for Twitter, yet. My goal is two-fold. First, I want it to be
-dead simple to add new endpoints to this library. Second I want the benefit of strong types that we all enjoy
-in Go. I've modeled this library after aws-sdk-go where the input to every endpoint is a well-defined struct,
-and the output from every endpoint is also a well-defined struct.
+This library is not meant to be an exhaustive API for Twitter, yet. My goal is two-fold. First, I want the benefit of
+strong types that we all enjoy in Go. Second, I want it to be dead simple to add new endpoints to this library. I've
+modeled this library after aws-sdk-go where the input to every endpoint is a well-defined struct, and the output from
+every endpoint is also a well-defined struct.
 
-A quick example of posting a tweet. You'll have to provide the consumer key, consumer secret, access token, and access
-token secret yourself. The endpoints for getting the oauth request token and converting that into and oauth access token
-have been implemented as OAuthRequestTokenGet and OAuthAccessTokenGet. In case you want to have your application
-automatically authorize the user and retrieve access tokens on their behalf. Checkout the provided examples.
+The easiest way to run the examples is to create an example/config.json then cd into the `example` directory and run
+`go run .`. Put the following in the config.json files.
 
-The easiest way to run the examples is to cd into the `example` directory and run `go run .`
+```json
+{
+  "oauth_consumer_key": "XXXXXXXXXXXXXXXXXXXXXXXXX",
+  "oauth_consumer_secret": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+}
+```
+
+Below is a quick example of posting a tweet. You'll have to provide the consumer key, consumer secret, access token, and
+access token secret yourself. The endpoints for getting the oauth request token and converting that into and oauth
+access token have been implemented as OAuthRequestTokenGet and OAuthAccessTokenGet. In case you want to have your
+application automatically authorize the user and retrieve access tokens on their behalf. Checkout the provided examples.
 
 ```go
 package main
 
 func main() {
-    tc := tweetgo.Client{
-        OAuthConsumerKey:       "OAuthConsumerKey",
-        OAuthConsumerSecret:    "OAuthConsumerSecret",
-        OAuthAccessToken:       "OAuthAccessToken",
-        OAuthAccessTokenSecret: "OAuthAccessTokenSecret",
-    }
+	tc := tweetgo.NewClient(
+		"OAuthConsumerKey",
+		"OAuthConsumerSecret",
+	)
+
+	tc.SetAccessKeys("OAuthAccessToken", "OAuthAccessTokenSecret")
 
     input := tweetgo.StatusesUpdateInput{
         Status: "Hello Ladies + Gentlemen, a signed OAuth request!",
@@ -36,8 +44,8 @@ func main() {
 }
 ```
 
-If you look in the model.go you'll see that every option for updating a status is in the struct StatusesUpdateInput
-and all the possible fields have been documented in the StatusesUpdateOutput.
+If you look in the model.go you'll see that every option for updating a status is in the struct StatusesUpdateInput and
+all the possible fields have been documented in the StatusesUpdateOutput.
 
 If you follow these steps you can add any endpoints that you need easily and give back to the community!
 
@@ -49,7 +57,8 @@ If you are using Go mod in your project you can add something like the following
 replace github.com/bloveless/tweetgo => ../tweetgo
 ```
 
-to your go.mod file before the require lines (replace ../tweetgo with the path to your local copy of tweetgo).
+to your go.mod file before any require lines in your go.mod (replace ../tweetgo with the path to your local copy of
+tweetgo).
 
 I learned about that command from this blog post. [Using "replace" in go.mod to point to your local module](https://thewebivore.com/using-replace-in-go-mod-to-point-to-your-local-module/)
 
