@@ -136,6 +136,7 @@ func (c Client) StatusesFilterPostRaw(input StatusesFilterInput) (*http.Response
 	return res, nil
 }
 
+// StatusesUserTimelineGet will get a users timeline and return an array of tweets
 func (c Client) StatusesUserTimelineGet(input StatusesUserTimelineInput) ([]StatusesUserTimelineOutput, error) {
 	uri := "https://api.twitter.com/1.1/statuses/user_timeline.json"
 	params := processParams(input)
