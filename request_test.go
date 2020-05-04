@@ -1,39 +1,12 @@
 package tweetgo
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
 	"reflect"
 	"testing"
 )
-
-type mockClient struct {
-	responses []*http.Response
-}
-
-func (c *mockClient) Do(req *http.Request) (*http.Response, error) {
-	if len(c.responses) > 0 {
-		response := c.responses[0]
-		c.responses = c.responses[1:]
-		return response, nil
-	}
-
-	return nil, errors.New("no response found to return")
-}
-
-type mockNonce struct{}
-
-func (n mockNonce) Generate() string {
-	return "kYjzVBB8Y0ZFabxSWbWovY3uYSQ2pTgmZeNu2VS4cg\n"
-}
-
-type mockCurrentTimer struct{}
-
-func (t mockCurrentTimer) GetCurrentTime() int64 {
-	return 1588432148
-}
 
 func TestCanProcessParamsAndOmitNilValues(t *testing.T) {
 	type testStruct struct {
@@ -128,8 +101,8 @@ func TestCorrectlyCalculatesSignatureForStatusesUpdate(t *testing.T) {
 		uri:       "https://api.twitter.com/1.1/statuses/update.json",
 		nonce:     "kYjzVBB8Y0ZFabxSWbWovY3uYSQ2pTgmZeNu2VS4cg",
 		timestamp: "1318622958",
-		params:    url.Values{
-			"status": {"Hello Ladies + Gentlemen, a signed OAuth request!"},
+		params: url.Values{
+			"status":           {"Hello Ladies + Gentlemen, a signed OAuth request!"},
 			"include_entities": {"true"},
 		},
 	}
@@ -159,7 +132,7 @@ func TestCorrectlyCalculatesSignatureForStatusesUpdateWithGetParameters(t *testi
 		uri:       "https://api.twitter.com/1.1/statuses/update.json?include_entities=true",
 		nonce:     "kYjzVBB8Y0ZFabxSWbWovY3uYSQ2pTgmZeNu2VS4cg",
 		timestamp: "1318622958",
-		params:    url.Values{
+		params: url.Values{
 			"status": {"Hello Ladies + Gentlemen, a signed OAuth request!"},
 		},
 	}
@@ -190,8 +163,8 @@ func TestCorrectlyCalculatesSignatureForStatusesUpdateWithDuplicatedGetParameter
 		uri:       "https://api.twitter.com/1.1/statuses/update.json?include_entities=true",
 		nonce:     "kYjzVBB8Y0ZFabxSWbWovY3uYSQ2pTgmZeNu2VS4cg",
 		timestamp: "1318622958",
-		params:    url.Values{
-			"status": {"Hello Ladies + Gentlemen, a signed OAuth request!"},
+		params: url.Values{
+			"status":           {"Hello Ladies + Gentlemen, a signed OAuth request!"},
 			"include_entities": {"true"},
 		},
 	}

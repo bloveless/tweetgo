@@ -74,6 +74,9 @@ func (c Client) OAuthRequestTokenGet(input OAuthRequestTokenInput) (OAuthRequest
 	var output = OAuthRequestTokenOutput{}
 	var decoder = schema.NewDecoder()
 	err = decoder.Decode(&output, values)
+	if err != nil {
+		return OAuthRequestTokenOutput{}, err
+	}
 
 	return output, nil
 }
@@ -97,6 +100,9 @@ func (c Client) OAuthAccessTokenGet(input OAuthAccessTokenInput) (OAuthAccessTok
 	var output = OAuthAccessTokenOutput{}
 	var decoder = schema.NewDecoder()
 	err = decoder.Decode(&output, values)
+	if err != nil {
+		return OAuthAccessTokenOutput{}, err
+	}
 
 	return output, nil
 }
@@ -118,7 +124,10 @@ func (c Client) StatusesUpdatePost(input StatusesUpdateInput) (StatusesUpdateOut
 	}
 
 	output := StatusesUpdateOutput{}
-	json.Unmarshal(resBytes, &output)
+	err = json.Unmarshal(resBytes, &output)
+	if err != nil {
+		return StatusesUpdateOutput{}, err
+	}
 
 	return output, nil
 }
@@ -153,7 +162,10 @@ func (c Client) StatusesUserTimelineGet(input StatusesUserTimelineInput) ([]Stat
 	}
 
 	var output []StatusesUserTimelineOutput
-	json.Unmarshal(resBytes, &output)
+	err = json.Unmarshal(resBytes, &output)
+	if err != nil {
+		return []StatusesUserTimelineOutput{}, err
+	}
 
 	return output, nil
 }

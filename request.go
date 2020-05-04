@@ -49,17 +49,17 @@ func processParams(input interface{}) url.Values {
 
 		if value != nil {
 			// convert to string based on underlying type
-			switch value.(type) {
+			switch value :=  value.(type) {
 			case string:
-				params.Add(name, value.(string))
+				params.Add(name, value)
 			case bool:
-				params.Add(name, strconv.FormatBool(value.(bool)))
+				params.Add(name, strconv.FormatBool(value))
 			case int:
-				params.Add(name, strconv.FormatInt(int64(value.(int)), 10))
+				params.Add(name, strconv.FormatInt(int64(value), 10))
 			case int64:
-				params.Add(name, strconv.FormatInt(value.(int64), 10))
+				params.Add(name, strconv.FormatInt(value, 10))
 			case float64:
-				params.Add(name, strconv.FormatFloat(value.(float64), 'f', -1, 64))
+				params.Add(name, strconv.FormatFloat(value, 'f', -1, 64))
 			}
 		}
 	}
@@ -141,6 +141,9 @@ func (c Client) getSignedRequest(method, uri string, params url.Values) (*http.R
 		u.RawQuery = sr.params.Encode()
 
 		req, err = http.NewRequest(sr.method, u.String(), nil)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	if err != nil {
@@ -191,14 +194,22 @@ func (c Client) signature(sr signatureRequest) (string, error) {
 
 	signingKey := url.QueryEscape(c.OAuthConsumerSecret) + "&" + url.QueryEscape(c.OAuthAccessTokenSecret)
 
-	return calculateSignature(signatureBaseString, signingKey), nil
+	sig, err  := calculateSignature(signatureBaseString, signingKey)
+	if err != nil {
+		return "", err
+	}
+
+	return sig, nil
 }
 
-func calculateSignature(base, key string) string {
+func calculateSignature(base, key string) (string, error) {
 	hash := hmac.New(sha1.New, []byte(key))
-	hash.Write([]byte(base))
+	_, err := hash.Write([]byte(base))
+	if err != nil {
+		return "", err
+	}
 	signature := hash.Sum(nil)
-	return base64.StdEncoding.EncodeToString(signature)
+	return base64.StdEncoding.EncodeToString(signature), nil
 }
 
 type headerParameters struct {
