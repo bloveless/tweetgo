@@ -24,12 +24,12 @@ application automatically authorize the user and retrieve access tokens on their
 package main
 
 func main() {
-	tc := tweetgo.NewClient(
-		"OAuthConsumerKey",
-		"OAuthConsumerSecret",
-	)
+    tc := tweetgo.NewClient(
+        "OAuthConsumerKey",
+        "OAuthConsumerSecret",
+    )
 
-	tc.SetAccessKeys("OAuthAccessToken", "OAuthAccessTokenSecret")
+    tc.SetAccessKeys("OAuthAccessToken", "OAuthAccessTokenSecret")
 
     input := tweetgo.StatusesUpdateInput{
         Status: "Hello Ladies + Gentlemen, a signed OAuth request!",
@@ -80,14 +80,14 @@ for you to add a conversion func to `value.go`.
 
 ```go
 type StatusesUserTimelineInput struct {
-	UserID         *int64  `schema:"user_id"`
-	ScreenName     *string `schema:"screen_name"`
-	SinceID        *int64  `schema:"since_id"`
-	Count          *int    `schema:"count"`
-	MaxID          *int64  `schema:"max_id"`
-	TrimUser       *bool   `schema:"trim_user"`
-	ExcludeReplies *bool   `schema:"exclude_replies"`
-	IncludeRts     *bool   `schema:"include_rts"`
+    UserID         *int64  `schema:"user_id"`
+    ScreenName     *string `schema:"screen_name"`
+    SinceID        *int64  `schema:"since_id"`
+    Count          *int    `schema:"count"`
+    MaxID          *int64  `schema:"max_id"`
+    TrimUser       *bool   `schema:"trim_user"`
+    ExcludeReplies *bool   `schema:"exclude_replies"`
+    IncludeRts     *bool   `schema:"include_rts"`
 }
 ```
 
@@ -100,7 +100,7 @@ simple.
 
 ```go
 type StatusesUserTimelineOutput struct {
-	tweet
+    tweet
 }
 ```
 
@@ -112,24 +112,24 @@ Hopefully this will make adding new endpoints extremely simple. For this endpoin
 
 ```go
 func (c Client) StatusesUserTimelineGet(input StatusesUserTimelineInput) ([]StatusesUserTimelineOutput, error) { // 1) change to the correct input/output types here
-	uri := "https://api.twitter.com/1.1/statuses/user_timeline.json" // 2) Change to the correct URI here
-	params := processParams(input)
+    uri := "https://api.twitter.com/1.1/statuses/user_timeline.json" // 2) Change to the correct URI here
+    params := processParams(input)
 
-	res, err := c.executeRequest(http.MethodGet, uri, params) // 3) Change to the correct http method here
-	if err != nil {
-		return []StatusesUserTimelineOutput{}, err // 4) Change to the correct output type here
-	}
-	defer res.Body.Close()
+    res, err := c.executeRequest(http.MethodGet, uri, params) // 3) Change to the correct http method here
+    if err != nil {
+        return []StatusesUserTimelineOutput{}, err // 4) Change to the correct output type here
+    }
+    defer res.Body.Close()
 
-	resBytes, err := ioutil.ReadAll(res.Body) // NOTE: This can be changed to parse form value output
-	if err != nil {
-		return []StatusesUserTimelineOutput{}, err // 5) Change to the correct output type here
-	}
+    resBytes, err := ioutil.ReadAll(res.Body) // NOTE: This can be changed to parse form value output
+    if err != nil {
+        return []StatusesUserTimelineOutput{}, err // 5) Change to the correct output type here
+    }
 
-	var output []StatusesUserTimelineOutput // 6) Change to the correct output type here
-	json.Unmarshal(resBytes, &output)
+    var output []StatusesUserTimelineOutput // 6) Change to the correct output type here
+    json.Unmarshal(resBytes, &output)
 
-	return output, nil
+    return output, nil
 }
 ```
 
