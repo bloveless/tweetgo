@@ -49,7 +49,7 @@ func processParams(input interface{}) url.Values {
 
 		if value != nil {
 			// convert to string based on underlying type
-			switch value :=  value.(type) {
+			switch value := value.(type) {
 			case string:
 				params.Add(name, value)
 			case bool:
@@ -194,7 +194,7 @@ func (c Client) signature(sr signatureRequest) (string, error) {
 
 	signingKey := url.QueryEscape(c.OAuthConsumerSecret) + "&" + url.QueryEscape(c.OAuthAccessTokenSecret)
 
-	sig, err  := calculateSignature(signatureBaseString, signingKey)
+	sig, err := calculateSignature(signatureBaseString, signingKey)
 	if err != nil {
 		return "", err
 	}
