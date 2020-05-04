@@ -137,6 +137,7 @@ Follow the six steps above, and you'll have your own endpoint up and running.
 
 NOTE: As far as I can tell twitter uses JSON output on nearly all of it's endpoints. The oauth endpoints use form value
 rather than JSON output so support functions exist for processing that type of data as well. Look at OAuthRequestTokenGet
-which uses gorilla/scheme for parsing the data into the output format.
+which uses gorilla/scheme for parsing the data into the output format if you find another endpoint that uses form values
+rather than JSON.
 
 There you go! You've added your own endpoint!
