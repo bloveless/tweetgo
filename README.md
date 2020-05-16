@@ -1,10 +1,6 @@
 # Tweetgo
 
-
-
-
-
-
+Examples are posted at [tweetgo-examples](https://github.com/bloveless/tweetgo-examples).
 
 This library is not meant to be an exhaustive API for Twitter, yet. My goal is two-fold. First, I want the benefit of
 strong types that we all enjoy in Go. Second, I want it to be dead simple to add new endpoints to this library. I've
@@ -157,14 +153,14 @@ Endpoints
 ### Authentication
   - [ ] GET oauth/authenticate
   - [ ] GET oauth/authorize
-  - [ ] POST oauth/access_token
+  - [X] POST oauth/access_token
   - [ ] POST oauth/invalidate_token
-  - [ ] POST oauth/request_token
+  - [X] POST oauth/request_token
   - [ ] POST oauth2/invalidate_token
   - [ ] POST oauth2/token
 ## Accounts and users
 ### Create and manage lists
-  - [ ] GET lists/list
+  - [X] GET lists/list
   - [ ] GET lists/members
   - [ ] GET lists/members/show
   - [ ] GET lists/memberships
@@ -243,11 +239,11 @@ Endpoints
   - PowerTrack API
   - PowerTrack Rules API
   - Replay API
-  - [ ] POST statuses/filter
+  - [X] POST statuses/filter
 ### Get Tweet timelines
   - [ ] GET statuses/home_timeline
   - [ ] GET statuses/mentions_timeline
-  - [ ] GET statuses/user_timeline
+  - [X] GET statuses/user_timeline
 ### Get batch historical Tweets
   - Historical PowerTrack
 ### Post, retrieve, and engage with Tweets
@@ -263,7 +259,7 @@ Endpoints
   - [ ] POST statuses/destroy/:id
   - [ ] POST statuses/retweet/:id
   - [ ] POST statuses/unretweet/:id
-  - [ ] POST statuses/update
+  - [X] POST statuses/update
 ### Sample realtime Tweets
   - Decahose stream
   - [ ] GET statuses/sample

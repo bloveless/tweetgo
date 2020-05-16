@@ -55,8 +55,9 @@ func (c *Client) SetAccessKeys(oauthAccessToken, oauthAccessTokenSecret string) 
 	c.OAuthAccessTokenSecret = oauthAccessTokenSecret
 }
 
-// OAuthRequestTokenGet will return an oauth_token and oauth_token_secret
-func (c Client) OAuthRequestTokenGet(input OAuthRequestTokenInput) (OAuthRequestTokenOutput, error) {
+// OAuthRequestTokenPost will return an oauth_token and oauth_token_secret
+// https://developer.twitter.com/en/docs/basics/authentication/api-reference/request_token
+func (c Client) OAuthRequestTokenPost(input OAuthRequestTokenInput) (OAuthRequestTokenOutput, error) {
 	uri := "https://api.twitter.com/oauth/request_token"
 	params := processParams(input)
 
@@ -81,8 +82,9 @@ func (c Client) OAuthRequestTokenGet(input OAuthRequestTokenInput) (OAuthRequest
 	return output, nil
 }
 
-// OAuthAccessTokenGet will exchange a temporary access token for a permanent one
-func (c Client) OAuthAccessTokenGet(input OAuthAccessTokenInput) (OAuthAccessTokenOutput, error) {
+// OAuthAccessTokenPost will exchange a temporary access token for a permanent one
+// https://developer.twitter.com/en/docs/basics/authentication/api-reference/access_token
+func (c Client) OAuthAccessTokenPost(input OAuthAccessTokenInput) (OAuthAccessTokenOutput, error) {
 	uri := "https://api.twitter.com/oauth/access_token"
 	params := processParams(input)
 
@@ -107,7 +109,87 @@ func (c Client) OAuthAccessTokenGet(input OAuthAccessTokenInput) (OAuthAccessTok
 	return output, nil
 }
 
+// ListsListGet will return all lists the authenticating user or specified user subscribes to, including thier own.
+// https://developer.twitter.com/en/docs/accounts-and-users/create-manage-lists/api-reference/get-lists-list
+func (c Client) ListsListGet(input ListsListInput) ([]ListsListOutput, error) {
+	uri := "https://api.twitter.com/1.1/lists/list.json"
+	params := processParams(input)
+
+	res, err := c.executeRequest(http.MethodGet, uri, params)
+	if err != nil {
+		return []ListsListOutput{}, err
+	}
+	defer res.Body.Close()
+
+	resBytes, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return []ListsListOutput{}, err
+	}
+
+	output := []ListsListOutput{}
+	err = json.Unmarshal(resBytes, &output)
+	if err != nil {
+		return []ListsListOutput{}, err
+	}
+
+	return output, nil
+}
+
+
+// ListsMembersGet will return the members of a specified list
+// https://developer.twitter.com/en/docs/accounts-and-users/create-manage-lists/api-reference/get-lists-members
+func (c Client) ListsMembersGet(input ListsMembersInput) (ListsMembersOutput, error) {
+	uri := "https://api.twitter.com/1.1/lists/members.json"
+	params := processParams(input)
+
+	res, err := c.executeRequest(http.MethodGet, uri, params)
+	if err != nil {
+		return ListsMembersOutput{}, err
+	}
+	defer res.Body.Close()
+
+	resBytes, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return ListsMembersOutput{}, err
+	}
+
+	output := ListsMembersOutput{}
+	err = json.Unmarshal(resBytes, &output)
+	if err != nil {
+		return ListsMembersOutput{}, err
+	}
+
+	return output, nil
+}
+
+// ListsMembersShowGet will check if the specified users is a member of the specified list
+// https://developer.twitter.com/en/docs/accounts-and-users/create-manage-lists/api-reference/get-lists-members-show
+func (c Client) ListsMembersShowGet(input ListsMembersShowInput) (ListsMembersShowOutput, error) {
+	uri := "https://api.twitter.com/1.1/lists/members/show.json"
+	params := processParams(input)
+
+	res, err := c.executeRequest(http.MethodGet, uri, params)
+	if err != nil {
+		return ListsMembersShowOutput{}, err
+	}
+	defer res.Body.Close()
+
+	resBytes, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		return ListsMembersShowOutput{}, err
+	}
+
+	output := ListsMembersShowOutput{}
+	err = json.Unmarshal(resBytes, &output)
+	if err != nil {
+		return ListsMembersShowOutput{}, err
+	}
+
+	return output, nil
+}
+
 // StatusesUpdatePost will post a status update to twitter
+// https://developer.twitter.com/en/docs/tweets/post-and-engage/api-reference/post-statuses-update
 func (c Client) StatusesUpdatePost(input StatusesUpdateInput) (StatusesUpdateOutput, error) {
 	uri := "https://api.twitter.com/1.1/statuses/update.json"
 	params := processParams(input)
@@ -133,6 +215,7 @@ func (c Client) StatusesUpdatePost(input StatusesUpdateInput) (StatusesUpdateOut
 }
 
 // StatusesFilterPostRaw will get a streaming list of tweets and return the raw http response for streaming
+// https://developer.twitter.com/en/docs/tweets/filter-realtime/api-reference/post-statuses-filter
 func (c Client) StatusesFilterPostRaw(input StatusesFilterInput) (*http.Response, error) {
 	uri := "https://stream.twitter.com/1.1/statuses/filter.json"
 	params := processParams(input)
@@ -146,6 +229,7 @@ func (c Client) StatusesFilterPostRaw(input StatusesFilterInput) (*http.Response
 }
 
 // StatusesUserTimelineGet will get a users timeline and return an array of tweets
+// https://developer.twitter.com/en/docs/tweets/timelines/api-reference/get-statuses-user_timeline
 func (c Client) StatusesUserTimelineGet(input StatusesUserTimelineInput) ([]StatusesUserTimelineOutput, error) {
 	uri := "https://api.twitter.com/1.1/statuses/user_timeline.json"
 	params := processParams(input)
