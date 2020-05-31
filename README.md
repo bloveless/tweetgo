@@ -1,4 +1,9 @@
 # Tweetgo
+[![GoDoc](http://img.shields.io/badge/godoc-reference-5272B4.svg?style=flat-square)](https://pkg.go.dev/github.com/bloveless/tweetgo?tab=doc)
+[![codecov](https://codecov.io/gh/bloveless/tweetgo/branch/master/graph/badge.svg)](https://codecov.io/gh/bloveless/tweetgo)
+[![CodeFactor](https://www.codefactor.io/repository/github/bloveless/tweetgo/badge)](https://www.codefactor.io/repository/github/bloveless/tweetgo)
+[![Go Report Card](https://goreportcard.com/badge/github.com/bloveless/tweetgo)](https://goreportcard.com/report/github.com/bloveless/tweetgo)
+[![Hound](https://camo.githubusercontent.com/1c940d021ef775a44e0880bc3ba124a6bee5fefb/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f52657669657765645f62792d486f756e642d3845363442302e737667)](https://houndci.com/)
 
 Examples are posted at [tweetgo-examples](https://github.com/bloveless/tweetgo-examples).
 
@@ -161,8 +166,8 @@ Endpoints
 ## Accounts and users
 ### Create and manage lists
   - [X] GET lists/list
-  - [ ] GET lists/members
-  - [ ] GET lists/members/show
+  - [X] GET lists/members
+  - [X] GET lists/members/show
   - [ ] GET lists/memberships
   - [ ] GET lists/ownerships
   - [ ] GET lists/show
