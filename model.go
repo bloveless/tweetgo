@@ -27,6 +27,69 @@ type OAuthAccessTokenOutput struct {
 	ScreenName       string `schema:"screen_name"`
 }
 
+// ListsListInput contains the possible inputs when listing a list
+type ListsListInput struct {
+	UserID     *int64  `schema:"user_id"`
+	ScreenName *string `schema:"screen_name"`
+	Reverse    *bool   `schema:"reverse"`
+}
+
+// ListsListOutput contains the output of listing the lists
+type ListsListOutput struct {
+	ID              int64  `json:"id"`
+	IDStr           string `json:"id_str"`
+	Name            string `json:"name"`
+	URI             string `json:"uri"`
+	SubscriberCount int    `json:"subscriber_count"`
+	MemberCount     int    `json:"member_count"`
+	Mode            string `json:"mode"`
+	Description     string `json:"description"`
+	Slug            string `json:"slug"`
+	FullName        string `json:"full_name"`
+	CreatedAt       string `json:"created_at"`
+	Following       bool   `json:"following"`
+	User            user   `json:"user"`
+}
+
+// ListsMembersInput contains the possible inputs when listing the members of a list
+type ListsMembersInput struct {
+	ListID          *int64  `schema:"list_id"`
+	Slug            *string `schema:"slug"`
+	OwnerScreenName *string `schema:"owner_screen_name"`
+	OwnerID         *int64  `schema:"owner_id"`
+	Count           *int    `schema:"count"`
+	Cursor          *int    `schema:"cursor"`
+	IncludeEntities *bool   `schema:"include_entities"`
+	SkipStatus      *bool   `schema:"skip_status"`
+}
+
+// ListsMembersOutput contians the output from listing the members of a list
+type ListsMembersOutput struct {
+	Users             []user `json:"users"`
+	NextCursor        int    `json:"next_cursor"`
+	NextCursorStr     string `json:"next_cursor_str"`
+	PreviousCursor    int    `json:"previous_cursor"`
+	PreviousCursorStr string `json:"previous_cursor_str"`
+	TotalCount        int    `json:"total_count"`
+}
+
+// ListsMembersShowInput contains the possible inputs for the lists/members/show endpoint
+type ListsMembersShowInput struct {
+	ListID          *int64  `schema:"list_id"`
+	Slug            *string `schema:"slug"`
+	UserID          *int64  `schema:"user_id"`
+	ScreenName      *string `schema:"screen_name"`
+	OwnerScreenName *string `schema:"owner_screen_name"`
+	OwnerID         *int64  `schema:"owner_id"`
+	IncludeEntities *bool   `schema:"include_entities"`
+	SkipStatus      *bool   `schema:"skip_status"`
+}
+
+// ListsMembersShowOutput contains the output for the lists/members/show endpoint
+type ListsMembersShowOutput struct {
+	user
+}
+
 // StatusesUpdateInput contains the possible inputs when updating a status
 type StatusesUpdateInput struct {
 	Status                    *string  `schema:"status"`
