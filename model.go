@@ -363,3 +363,22 @@ type rule struct {
 	ID    int64  `json:"id"`
 	IDStr string `json:"id_str"`
 }
+
+/*
+scheduled tweet endpoints
+*/
+
+//AccountsScheduledTweetsInput ...
+type AccountsScheduledTweetsInput struct {
+	AccountId   *string `schema:"account_id"`
+	ScheduledAt *string `schema:"scheduled_at"`
+	AsUserId    *int64  `schema:"as_user_id"`
+	Text        *string `schema:"text"`
+	CardUri     *string `schema:"card_uri"`
+	MediaKeys   *string `schema:"media_keys"`
+	Nullcast    *bool   `schema:"nullcast"`
+}
+
+//AccountsScheduledTweetsOutput ...
+type AccountsScheduledTweetsOutput struct {
+}

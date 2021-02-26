@@ -3,6 +3,7 @@ package tweetgo
 import (
 	"encoding/json"
 	"io/ioutil"
+	"log"
 	"math/rand"
 	"net/http"
 	"time"
@@ -135,7 +136,6 @@ func (c Client) ListsListGet(input ListsListInput) ([]ListsListOutput, error) {
 	return output, nil
 }
 
-
 // ListsMembersGet will return the members of a specified list
 // https://developer.twitter.com/en/docs/accounts-and-users/create-manage-lists/api-reference/get-lists-members
 func (c Client) ListsMembersGet(input ListsMembersInput) (ListsMembersOutput, error) {
@@ -252,4 +252,16 @@ func (c Client) StatusesUserTimelineGet(input StatusesUserTimelineInput) ([]Stat
 	}
 
 	return output, nil
+}
+
+func (c Client) AccountsScheduledTweetsPost(input AccountsScheduledTweetsInput, accountId string) (*http.Response, error) {
+	uri := "https://ads-api.twitter.com/8/accounts/" + accountId + "/scheduled_tweets"
+	params := processParams(input)
+	res, err := c.executeRequest(http.MethodPost, uri, params)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+	log.Println("you've posted a scheduled tweet.", res.Body)
+	return res, nil
 }
