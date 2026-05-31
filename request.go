@@ -14,7 +14,7 @@ import (
 	"strings"
 )
 
-type requestMaker interface {
+type RequestMaker interface {
 	Do(req *http.Request) (*http.Response, error)
 }
 

@@ -1,14 +1,36 @@
-package tweetgo
+package tests
 
 import (
 	"fmt"
+	"github.com/bloveless/tweetgo"
 	"net/http"
 	"net/url"
 	"reflect"
 	"testing"
 )
 
+type mockClient struct {
+	requests []*http.Request
+	responses []*http.Response
+}
+
+func (m *mockClient) Do(req *http.Request) (*http.Response, error) {
+	m.requests = append(m.requests, req)
+
+	if len(m.responses) > 0 {
+		response := m.responses[0]
+		m.responses = m.responses[1:]
+
+		return response, nil
+	}
+
+	return nil, nil
+}
+
 func TestCanProcessParamsAndOmitNilValues(t *testing.T) {
+	c := tweetgo.Client{
+		HTTPClient:
+	}
 	type testStruct struct {
 		TestString     *string  `schema:"test_string"`
 		TestBool       *bool    `schema:"test_bool"`
@@ -23,11 +45,11 @@ func TestCanProcessParamsAndOmitNilValues(t *testing.T) {
 	}
 
 	ts := testStruct{
-		TestString:     String("test"),
-		TestBool:       Bool(true),
-		TestInt:        Int(10),
-		TestInt64:      Int64(20),
-		TestFloat64:    Float64(3.49),
+		TestString:     tweetgo.String("test"),
+		TestBool:       tweetgo.Bool(true),
+		TestInt:        tweetgo.Int(10),
+		TestInt64:      tweetgo.Int64(20),
+		TestFloat64:    tweetgo.Float64(3.49),
 		TestNilString:  nil,
 		TestNilBool:    nil,
 		TestNilInt:     nil,
@@ -35,7 +57,7 @@ func TestCanProcessParamsAndOmitNilValues(t *testing.T) {
 		TestNilFloat64: nil,
 	}
 
-	o := processParams(ts)
+	o := tweetgo.processParams(ts)
 
 	expected := url.Values{
 		"test_string":  {"test"},
@@ -62,14 +84,14 @@ func TestCanProcessStructsThatContainZeroValues(t *testing.T) {
 	}
 
 	ts := testZeroStruct{
-		TestZeroString:  String(""),
-		TestZeroBool:    Bool(false),
-		TestZeroInt:     Int(0),
-		TestZeroInt64:   Int64(0),
-		TestZeroFloat64: Float64(0.00),
+		TestZeroString:  tweetgo.String(""),
+		TestZeroBool:    tweetgo.Bool(false),
+		TestZeroInt:     tweetgo.Int(0),
+		TestZeroInt64:   tweetgo.Int64(0),
+		TestZeroFloat64: tweetgo.Float64(0.00),
 	}
 
-	o := processParams(ts)
+	o := tweetgo.processParams(ts)
 
 	expected := url.Values{
 		"test_zero_string":  {""},
@@ -89,14 +111,14 @@ func TestCanProcessStructsThatContainZeroValues(t *testing.T) {
 // Using one of the twitter examples make sure we can correctly calculate the signature
 // https://developer.twitter.com/en/docs/basics/authentication/oauth-1-0a/creating-a-signature
 func TestCorrectlyCalculatesSignatureForStatusesUpdate(t *testing.T) {
-	tc := Client{
+	tc := tweetgo.Client{
 		OAuthConsumerKey:       "xvz1evFS4wEEPTGEFPHBog",
 		OAuthConsumerSecret:    "kAcSOqF21Fu85e7zjz7ZN2U4ZRhfV3WpwPAoE3Z7kBw",
 		OAuthAccessToken:       "370773112-GmHxMAgYyLbNEtIKZeRNFsMKPR9EyMZeS9weJAEb",
 		OAuthAccessTokenSecret: "LswwdoUaIvS8ltyTt5jkRh4J50vUPVVHtR2YPi5kE",
 	}
 
-	sr := signatureRequest{
+	sr := tweetgo.signatureRequest{
 		method:    http.MethodPost,
 		uri:       "https://api.twitter.com/1.1/statuses/update.json",
 		nonce:     "kYjzVBB8Y0ZFabxSWbWovY3uYSQ2pTgmZeNu2VS4cg",
@@ -120,14 +142,14 @@ func TestCorrectlyCalculatesSignatureForStatusesUpdate(t *testing.T) {
 }
 
 func TestCorrectlyCalculatesSignatureForStatusesUpdateWithGetParameters(t *testing.T) {
-	tc := Client{
+	tc := tweetgo.Client{
 		OAuthConsumerKey:       "xvz1evFS4wEEPTGEFPHBog",
 		OAuthConsumerSecret:    "kAcSOqF21Fu85e7zjz7ZN2U4ZRhfV3WpwPAoE3Z7kBw",
 		OAuthAccessToken:       "370773112-GmHxMAgYyLbNEtIKZeRNFsMKPR9EyMZeS9weJAEb",
 		OAuthAccessTokenSecret: "LswwdoUaIvS8ltyTt5jkRh4J50vUPVVHtR2YPi5kE",
 	}
 
-	sr := signatureRequest{
+	sr := tweetgo.signatureRequest{
 		method:    http.MethodPost,
 		uri:       "https://api.twitter.com/1.1/statuses/update.json?include_entities=true",
 		nonce:     "kYjzVBB8Y0ZFabxSWbWovY3uYSQ2pTgmZeNu2VS4cg",
@@ -151,14 +173,14 @@ func TestCorrectlyCalculatesSignatureForStatusesUpdateWithGetParameters(t *testi
 
 // Duplicated params will change the signature
 func TestCorrectlyCalculatesSignatureForStatusesUpdateWithDuplicatedGetParameters(t *testing.T) {
-	tc := Client{
+	tc := tweetgo.Client{
 		OAuthConsumerKey:       "xvz1evFS4wEEPTGEFPHBog",
 		OAuthConsumerSecret:    "kAcSOqF21Fu85e7zjz7ZN2U4ZRhfV3WpwPAoE3Z7kBw",
 		OAuthAccessToken:       "370773112-GmHxMAgYyLbNEtIKZeRNFsMKPR9EyMZeS9weJAEb",
 		OAuthAccessTokenSecret: "LswwdoUaIvS8ltyTt5jkRh4J50vUPVVHtR2YPi5kE",
 	}
 
-	sr := signatureRequest{
+	sr := tweetgo.signatureRequest{
 		method:    http.MethodPost,
 		uri:       "https://api.twitter.com/1.1/statuses/update.json?include_entities=true",
 		nonce:     "kYjzVBB8Y0ZFabxSWbWovY3uYSQ2pTgmZeNu2VS4cg",

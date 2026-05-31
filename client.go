@@ -16,7 +16,7 @@ type Client struct {
 	OAuthConsumerSecret    string
 	OAuthAccessToken       string
 	OAuthAccessTokenSecret string
-	HTTPClient             requestMaker
+	HTTPClient             RequestMaker
 	Noncer                 nonceMaker
 	Timer                  currentTimer
 }
@@ -40,6 +40,7 @@ func (t timer) GetCurrentTime() int64 {
 	return time.Now().Unix()
 }
 
+// NewClient creates a new tweetgo.Client with a populated noncer, timer, httpclient, and OAuth keys.
 func NewClient(oauthConsumerKey, oauthConsumerSecret string) Client {
 	return Client{
 		OAuthConsumerKey:    oauthConsumerKey,
@@ -50,6 +51,8 @@ func NewClient(oauthConsumerKey, oauthConsumerSecret string) Client {
 	}
 }
 
+// SetAccessKeys allows setting the user access token and access token secret for accessing user
+// specific endpoints.
 func (c *Client) SetAccessKeys(oauthAccessToken, oauthAccessTokenSecret string) {
 	c.OAuthAccessToken = oauthAccessToken
 	c.OAuthAccessTokenSecret = oauthAccessTokenSecret
